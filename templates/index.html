@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>DORA WEB SITE | Live Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(ellipse at 30% 20%, #0a0a0a, #000000);
+            font-family: 'Space Grotesk', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-red-glow {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(45deg, rgba(220,20,60,0.02) 0px, rgba(220,20,60,0.02) 2px, transparent 2px, transparent 10px),
+                radial-gradient(circle at 50% 0%, rgba(220,20,60,0.2), transparent 70%);
+            pointer-events: none;
+        }
+
+        .orb {
+            position: fixed;
+            width: 60vmax;
+            height: 60vmax;
+            background: radial-gradient(circle, rgba(220,20,60,0.1), transparent);
+            border-radius: 50%;
+            filter: blur(70px);
+            animation: float 18s infinite;
+        }
+        .orb1 { top: -30%; left: -20%; }
+        .orb2 { bottom: -30%; right: -20%; animation-delay: -6s; background: radial-gradient(circle, rgba(139,0,0,0.12), transparent); }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0,0); }
+            50% { transform: translate(4%,4%); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 540px;
+        }
+
+        /* Main Card */
+        .dora-card {
+            background: rgba(5,5,12,0.88);
+            backdrop-filter: blur(20px);
+            border-radius: 2.5rem;
+            padding: 2rem 1.75rem;
+            border: 1px solid rgba(220,20,60,0.5);
+            box-shadow: 0 25px 45px -12px black, 0 0 0 1px rgba(220,20,60,0.2);
+        }
+
+        /* Logo */
+        .logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .dora-text {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: 6px;
+            background: linear-gradient(135deg, #fff, #dc143c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .web-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: #dc143c;
+            margin-top: -5px;
+        }
+        .badge {
+            background: rgba(220,20,60,0.2);
+            border-radius: 2rem;
+            padding: 0.25rem 1rem;
+            width: fit-content;
+            margin: 1rem auto;
+            border: 1px solid rgba(220,20,60,0.5);
+        }
+        .badge span {
+            font-size: 0.7rem;
+            color: #dc143c;
+            font-weight: 600;
+        }
+        .red-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #dc143c;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+        /* Allow Button */
+        .allow-btn {
+            width: 100%;
+            background: linear-gradient(95deg, #dc143c, #8b0000);
+            border: none;
+            padding: 1.2rem;
+            border-radius: 3rem;
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            margin: 1.5rem 0;
+            transition: all 0.3s;
+            box-shadow: 0 8px 20px rgba(220,20,60,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .allow-btn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 15px 30px rgba(220,20,60,0.5); }
+        .allow-btn:active { transform: translateY(1px); }
+        .allow-btn:disabled { opacity: 0.6; transform: none; }
+
+        /* Deny Button */
+        .deny-btn {
+            width: 100%;
+            background: rgba(20,20,30,0.9);
+            border: 1px solid rgba(220,20,60,0.4);
+            padding: 0.9rem;
+            border-radius: 3rem;
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 0.5rem;
+        }
+        .deny-btn:hover { background: rgba(220,20,60,0.2); border-color: #dc143c; color: #dc143c; }
+
+        /* Status */
+        .status-box {
+            background: rgba(0,0,0,0.6);
+            border-radius: 1.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: none;
+            border-left: 3px solid;
+        }
+        .status-box.show { display: flex; align-items: center; gap: 0.75rem; animation: fadeInUp 0.4s; }
+        .status-box.loading { border-left-color: #ffaa00; }
+        .status-box.success { border-left-color: #00cc66; }
+        .status-box.error { border-left-color: #dc143c; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Location Panel */
+        .location-panel {
+            background: rgba(0,0,0,0.5);
+            border-radius: 1.5rem;
+            padding: 1.25rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(220,20,60,0.3);
+            display: none;
+        }
+        .location-panel.show { display: block; }
+        .coord-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .coord-label { color: #888; font-size: 0.8rem; }
+        .coord-value { color: #dc143c; font-family: monospace; font-weight: 700; }
+        .accuracy-badge { background: rgba(220,20,60,0.15); padding: 0.5rem; border-radius: 1rem; text-align: center; font-size: 0.7rem; color: #dc143c; margin-top: 0.75rem; }
+        .map-link { display: block; text-align: center; margin-top: 1rem; color: #dc143c; text-decoration: none; font-size: 0.75rem; letter-spacing: 1px; }
+
+        .footer { text-align: center; margin-top: 1.5rem; font-size: 0.6rem; color: #444; }
+    </style>
+</head>
+<body>
+<div class="bg-red-glow"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<div class="container">
+    <div class="dora-card">
+        <div class="logo">
+            <div class="dora-text">DORA<span style="font-size:1.5rem;">WEB</span></div>
+            <div class="web-text">⚡ SITE ⚡</div>
+        </div>
+        <div class="badge"><span><i class="red-dot"></i> LIVE TRACKING READY</span></div>
+
+        <button class="allow-btn" id="allowBtn">
+            🔴 ALLOW LOCATION
+        </button>
+        <button class="deny-btn" id="denyBtn">
+            ⛔ DENY / CANCEL
+        </button>
+
+        <div id="statusBox" class="status-box">
+            <span id="statusIcon">⚠️</span>
+            <span id="statusMsg">Ready</span>
+        </div>
+
+        <div id="locationPanel" class="location-panel">
+            <div class="coord-row"><span class="coord-label">LATITUDE</span><span id="lat" class="coord-value">--</span></div>
+            <div class="coord-row"><span class="coord-label">LONGITUDE</span><span id="lon" class="coord-value">--</span></div>
+            <div id="accuracyBox" class="accuracy-badge">🎯 ACCURACY: -- METERS</div>
+            <a id="mapLink" href="#" target="_blank" class="map-link">📍 OPEN IN MAPS →</a>
+        </div>
+
+        <div class="footer">🔒 DORA SECURE ENCRYPTION | REAL-TIME</div>
+    </div>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+
+    const allowBtn = document.getElementById('allowBtn');
+    const denyBtn = document.getElementById('denyBtn');
+    const statusBox = document.getElementById('statusBox');
+    const statusIcon = document.getElementById('statusIcon');
+    const statusMsg = document.getElementById('statusMsg');
+    const locationPanel = document.getElementById('locationPanel');
+    const latSpan = document.getElementById('lat');
+    const lonSpan = document.getElementById('lon');
+    const accuracySpan = document.getElementById('accuracyBox');
+    const mapLink = document.getElementById('mapLink');
+
+    let watchId = null;
+
+    function showStatus(type, message) {
+        statusBox.classList.add('show');
+        statusMsg.textContent = message;
+        if (type === 'loading') {
+            statusIcon.textContent = '⏳';
+            statusBox.className = 'status-box loading show';
+        } else if (type === 'success') {
+            statusIcon.textContent = '✅';
+            statusBox.className = 'status-box success show';
+        } else if (type === 'error') {
+            statusIcon.textContent = '❌';
+            statusBox.className = 'status-box error show';
+        }
+    }
+
+    async function sendLocationToServer(lat, lon, accuracy) {
+        try {
+            const response = await fetch('/send-location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId,
+                    latitude: lat,
+                    longitude: lon,
+                    accuracy: accuracy
+                })
+            });
+            return await response.json();
+        } catch (err) {
+            console.error('Send error:', err);
+        }
+    }
+
+    function updateLocationDisplay(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const accuracy = Math.round(position.coords.accuracy);
+        
+        latSpan.textContent = lat.toFixed(6);
+        lonSpan.textContent = lon.toFixed(6);
+        accuracySpan.innerHTML = `🎯 ACCURACY: ${accuracy} METERS`;
+        mapLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
+        
+        if (!locationPanel.classList.contains('show')) {
+            locationPanel.classList.add('show');
+        }
+        
+        sendLocationToServer(lat, lon, accuracy);
+        showStatus('success', '✅ Live location active! Tracking...');
+    }
+
+    function startLocation() {
+        if (!navigator.geolocation) {
+            showStatus('error', 'Geolocation not supported');
+            return;
+        }
+        
+        showStatus('loading', 'Requesting location permission...');
+        allowBtn.disabled = true;
+        denyBtn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                updateLocationDisplay(position);
+                if (watchId) navigator.geolocation.clearWatch(watchId);
+                watchId = navigator.geolocation.watchPosition(
+                    updateLocationDisplay,
+                    (err) => console.log('Watch error'),
+                    { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+                );
+            },
+            (error) => {
+                let msg = error.code === 1 ? 'Permission denied. Cannot get location.' : 'Location unavailable.';
+                showStatus('error', msg);
+                allowBtn.disabled = false;
+                denyBtn.disabled = false;
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }
+
+    allowBtn.addEventListener('click', startLocation);
+    denyBtn.addEventListener('click', () => {
+        showStatus('error', '⛔ Access denied. Location cannot be shared without permission.');
+        // DENY කළොත් location එකක් නෑ
+    });
+
+    if (!userId) {
+        showStatus('error', 'Invalid link. Please restart from bot.');
+        allowBtn.disabled = true;
+        denyBtn.disabled = true;
+    }
+</script>
+</body>
+</html>
