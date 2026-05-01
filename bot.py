@@ -4,7 +4,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppI
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 # Bot Token - Render.com Environment Variable එකෙන් ගන්න
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8762177777:AAGURMYEerS2T0CQyfJ2JTRabtbBK1Z9tdE")
 # Web App URL - Render.com එකෙන් ලැබෙන URL එක (Automatic)
 WEBAPP_URL = os.environ.get("WEBAPP_URL", "https://your-app.onrender.com")
 
